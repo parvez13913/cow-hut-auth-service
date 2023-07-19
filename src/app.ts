@@ -5,6 +5,7 @@ import { UserRoute } from './app/modules/user/user.route';
 import { CowRouter } from './app/modules/cow/cow.route';
 import httpStatus from 'http-status';
 import { OrderRouter } from './app/modules/order/order.route';
+import { AdminRouter } from './app/modules/admin/admin.route';
 
 const app: Application = express();
 
@@ -18,6 +19,7 @@ app.use('/api/v1/auth/', UserRoute);
 app.use('/api/v1/users/', UserRoute);
 app.use('/api/v1/cows/', CowRouter);
 app.use('/api/v1/orders/', OrderRouter);
+app.use('/api/v1/admins/', AdminRouter);
 // Handle Not Found Route
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(httpStatus.NOT_FOUND).json({
