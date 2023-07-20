@@ -12,7 +12,7 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
   sendResponse<IAdmin>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Users created successfully',
+    message: 'Admin created successfully',
     data: result,
   });
 });
