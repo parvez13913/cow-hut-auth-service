@@ -10,4 +10,4 @@ router.post(
   validateRequest(AdminValidation.createAdminZodSchema),
   AdminController.createAdmin
 );
-export const AdminRouter = router;
+export const AdminRoutes = router;

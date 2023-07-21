@@ -20,4 +20,4 @@ router.patch(
 );
 router.delete('/:id', UserController.deleteUser);
 
-export const UserRoute = router;
+export const UserRoutes = router;

@@ -12,4 +12,4 @@ router.post(
 );
 router.get('/', OrderController.getAllOrders);
 
-export const OrderRouter = router;
+export const OrderRoutes = router;
