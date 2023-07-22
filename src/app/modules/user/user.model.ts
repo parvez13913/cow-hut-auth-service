@@ -7,9 +7,9 @@ import config from '../../../config';
 
 const userSchema = new Schema<IUser, UserModel>(
   {
-    id: {
-      type: String,
-    },
+    // id: {
+    //   type: String,
+    // },
     password: {
       type: String,
       required: true,
@@ -57,8 +57,10 @@ const userSchema = new Schema<IUser, UserModel>(
 
 userSchema.statics.isUserExist = async function (
   phoneNumber: string
-): Promise<Pick<IUser, 'password' | 'role' | 'phoneNumber' | 'id'> | null> {
-  return await User.findOne({ phoneNumber }, { id: 1, role: 1, password: 1 });
+): Promise<
+  (Pick<IUser, 'password' | 'role' | 'phoneNumber'> & { _id: string }) | null
+> {
+  return await User.findOne({ phoneNumber }, { _id: 1, role: 1, password: 1 });
 };
 
 userSchema.statics.isPasswordMatched = async function (

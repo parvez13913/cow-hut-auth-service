@@ -7,10 +7,12 @@ import httpStatus from 'http-status';
 import { OrderRoutes } from './app/modules/order/order.route';
 import { AdminRoutes } from './app/modules/admin/admin.route';
 import { AuthRoutes } from './app/modules/auth/auth.route';
+import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 
 app.use(cors());
+app.use(cookieParser());
 
 // perser
 app.use(express.json());

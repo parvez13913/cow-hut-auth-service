@@ -21,16 +21,16 @@ const loginUser = async (payload: ILoginUser) => {
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password is incorrect');
   }
-  const { id: userId, role } = isUserExist;
+  const { _id: userId, role } = isUserExist;
 
   const accessToken = JwtHelpers.createToken(
-    { userId, role },
+    { userId, role, phoneNumber },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = JwtHelpers.createToken(
-    { userId, role },
+    { userId, role, phoneNumber },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string
   );
@@ -41,6 +41,37 @@ const loginUser = async (payload: ILoginUser) => {
   };
 };
 
+const refreshToken = async (token: string) => {
+  let verifiedToken = null;
+  try {
+    verifiedToken = JwtHelpers.verifiedToken(
+      token,
+      config.jwt.refresh_secret as Secret
+    );
+  } catch (error) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Invalid Refresh Token');
+  }
+
+  const { phoneNumber } = verifiedToken;
+
+  const isUserExist = await User.isUserExist(phoneNumber);
+
+  if (!isUserExist) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'User does not exist');
+  }
+  const { _id: userId, role } = isUserExist;
+  const newAccessToken = JwtHelpers.createToken(
+    { userId, role },
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as string
+  );
+
+  return {
+    accessToken: newAccessToken,
+  };
+};
+
 export const AuthService = {
   loginUser,
+  refreshToken,
 };

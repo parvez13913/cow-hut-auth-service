@@ -7,7 +7,7 @@ export type UserName = {
 };
 
 export type IUser = {
-  id?: string;
+  // id?: string;
   password: string;
   role: 'buyer' | 'seller';
   name: UserName;
@@ -20,7 +20,9 @@ export type IUser = {
 export type UserModel = {
   isUserExist(
     phoneNumber: string
-  ): Promise<Pick<IUser, 'password' | 'role' | 'phoneNumber' | 'id'> | null>;
+  ): Promise<
+    (Pick<IUser, 'password' | 'role' | 'phoneNumber'> & { _id: string }) | null
+  >;
   isPasswordMatched(
     givenPassword: string,
     sevedPassword: string
