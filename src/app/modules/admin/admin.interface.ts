@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Model } from 'mongoose';
 
 export type AdminName = {
@@ -13,4 +14,23 @@ export type IAdmin = {
   address: string;
 };
 
-export type AdminModel = Model<IAdmin, Record<string, unknown>>;
+export type ILoginAdminResponse = {
+  accessToken: string;
+  refreshToken?: string;
+};
+export type ILoginAdmin = {
+  phoneNumber: string;
+  password: string;
+};
+
+export type AdminModel = {
+  isAdminExist(
+    phoneNumber: string
+  ): Promise<
+    (Pick<IAdmin, 'password' | 'role' | 'phoneNumber'> & { _id: string }) | null
+  >;
+  isPasswordMatched(
+    givenPassword: string,
+    sevedPassword: string
+  ): Promise<boolean>;
+} & Model<IAdmin>;
