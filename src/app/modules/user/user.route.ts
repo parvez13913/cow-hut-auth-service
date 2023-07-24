@@ -22,5 +22,6 @@ router.patch(
   UserController.updateUser
 );
 router.delete('/:id', auth(ENUM_USER_ROLE.ADMIN), UserController.deleteUser);
+router.get('/my-profile');
 
 export const UserRoutes = router;

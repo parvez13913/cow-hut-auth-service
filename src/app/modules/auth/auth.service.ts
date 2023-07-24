@@ -5,6 +5,7 @@ import { ILoginUser } from './auth.interface';
 import { JwtHelpers } from '../../../helpers/jwtHelpers';
 import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
+import { IUser } from '../user/user.interface';
 
 const loginUser = async (payload: ILoginUser) => {
   const { phoneNumber, password } = payload;
@@ -24,13 +25,13 @@ const loginUser = async (payload: ILoginUser) => {
   const { _id: userId, role } = isUserExist;
 
   const accessToken = JwtHelpers.createToken(
-    { userId, role, phoneNumber },
+    { userId, role },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = JwtHelpers.createToken(
-    { userId, role, phoneNumber },
+    { userId, role },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string
   );
@@ -52,16 +53,20 @@ const refreshToken = async (token: string) => {
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid Refresh Token');
   }
 
-  const { phoneNumber } = verifiedToken;
+  const { userId } = verifiedToken;
+
+  const newUserId = (await User.findById(userId)) as IUser;
+  const { phoneNumber } = newUserId;
 
   const isUserExist = await User.isUserExist(phoneNumber);
 
   if (!isUserExist) {
     throw new ApiError(httpStatus.FORBIDDEN, 'User does not exist');
   }
-  const { _id: userId, role } = isUserExist;
+  const { _id, role } = isUserExist;
+
   const newAccessToken = JwtHelpers.createToken(
-    { userId, role },
+    { _id, role },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
