@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Types } from 'mongoose';
 import { ICow } from '../cow/cow.interface';
 import { IUser } from '../user/user.interface';
