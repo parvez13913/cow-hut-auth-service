@@ -7,6 +7,7 @@ import { CowService } from './cow.service';
 import pick from '../shared/pick';
 import { cowFilterableFields } from './cow.constants';
 import { paginationFields } from '../../../constants/pagination';
+import ApiError from '../../../errors/ApiError';
 
 const createCow = catchAsync(async (req: Request, res: Response) => {
   const { ...cowData } = req.body;
@@ -49,7 +50,12 @@ const getSingleCow = catchAsync(async (req: Request, res: Response) => {
 const updateCow = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const updateData = req.body;
-  const result = await CowService.updateCow(id, updateData);
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
+
+  const result = await CowService.updateCow(id, updateData, token);
 
   sendResponse<ICow>(res, {
     success: true,
@@ -61,7 +67,11 @@ const updateCow = catchAsync(async (req: Request, res: Response) => {
 
 const deleteCow = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
-  const result = await CowService.deleteCow(id);
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
+  const result = await CowService.deleteCow(id, token);
 
   sendResponse<ICow>(res, {
     success: true,

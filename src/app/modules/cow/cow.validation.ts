@@ -77,7 +77,7 @@ const updatedCowZodSchema = z.object({
       .optional(),
     seller: z
       .string({
-        required_error: 'Seller is required',
+        required_error: 'Seller id is required',
       })
       .optional(),
   }),
