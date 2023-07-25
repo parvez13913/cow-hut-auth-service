@@ -4,6 +4,10 @@ import { Cow } from '../cow/cow.model';
 import ApiError from '../../../errors/ApiError';
 import mongoose from 'mongoose';
 import { Order } from './order.model';
+import { JwtHelpers } from '../../../helpers/jwtHelpers';
+import config from '../../../config';
+import { Secret } from 'jsonwebtoken';
+import httpStatus from 'http-status';
 
 const createOrder = async (
   cow: string,
@@ -39,7 +43,18 @@ const createOrder = async (
       $inc: { income: isValidCow.price },
     });
 
-    const newOrder = await Order.create({ cow, buyer });
+    const newOrder = await (
+      await (
+        await Order.create({ cow, buyer })
+      ).populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+    ).populate('buyer');
     await session.commitTransaction();
     await session.endSession();
     return newOrder;
@@ -50,10 +65,51 @@ const createOrder = async (
   }
 };
 
-const getAllOrders = async (): Promise<IOrder[]> => {
-  const result = await Order.find();
-
-  return result;
+const getAllOrders = async (token: string): Promise<IOrder[]> => {
+  const isValidUser = JwtHelpers.verifiedToken(
+    token,
+    config.jwt.secret as Secret
+  );
+  const { role, userId } = isValidUser;
+  if (role === 'admin') {
+    const allOrders = await Order.find()
+      .populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+      .populate('buyer');
+    return allOrders;
+  } else if (role === 'buyer') {
+    const buyerOrders = await Order.find({ buyer: userId })
+      .populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+      .populate('buyer');
+    return buyerOrders;
+  } else if (role === 'seller') {
+    const sellerOrders = await Order.find({ seller: userId })
+      .populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+      .populate('buyer');
+    return sellerOrders;
+  } else {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden..');
+  }
 };
 export const OrderService = {
   createOrder,

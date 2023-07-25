@@ -4,6 +4,7 @@ import sendResponse from '../shared/sendResponse';
 import { IOrder } from './order.interface';
 import httpStatus from 'http-status';
 import { OrderService } from './order.service';
+import ApiError from '../../../errors/ApiError';
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const { cow, buyer } = req.body;
@@ -19,7 +20,11 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
-  const result = await OrderService.getAllOrders();
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
+  }
+  const result = await OrderService.getAllOrders(token);
 
   sendResponse<IOrder[]>(res, {
     success: true,

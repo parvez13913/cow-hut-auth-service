@@ -10,7 +10,7 @@ const orderSchema = new Schema<IOrder>(
     },
     buyer: {
       type: Schema.Types.ObjectId,
-      ref: 'Buyer',
+      ref: 'User',
       required: true,
     },
   },
