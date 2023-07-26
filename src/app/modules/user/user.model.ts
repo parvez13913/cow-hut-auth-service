@@ -7,9 +7,6 @@ import config from '../../../config';
 
 const userSchema = new Schema<IUser, UserModel>(
   {
-    // id: {
-    //   type: String,
-    // },
     password: {
       type: String,
       required: true,

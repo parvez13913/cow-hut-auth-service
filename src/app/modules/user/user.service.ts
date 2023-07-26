@@ -73,7 +73,10 @@ const getMyProfile = async (token: string): Promise<IProfile> => {
   return result;
 };
 
-const updateMyProfile = async (payload: Partial<IUser>, token: string) => {
+const updateMyProfile = async (
+  payload: Partial<IUser>,
+  token: string
+): Promise<IProfile> => {
   const isValidUser = JwtHelpers.verifiedToken(
     token,
     config.jwt.secret as Secret
@@ -106,11 +109,21 @@ const updateMyProfile = async (payload: Partial<IUser>, token: string) => {
     updateProfileData.password = hashedPassword;
   }
 
-  const result = await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     { _id: isValidUser?.userId },
     updateProfileData,
     { new: true }
   );
+
+  if (!updatedUser) {
+    throw new ApiError(400, 'jdkjksj');
+  }
+
+  const result = {
+    name: updatedUser.name,
+    phoneNumber: updatedUser.phoneNumber,
+    address: updatedUser.address,
+  };
 
   return result;
 };
