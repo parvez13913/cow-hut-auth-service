@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Secret } from 'jsonwebtoken';
 import config from '../../../config';
 import { JwtHelpers } from '../../../helpers/jwtHelpers';
 import { IProfile, IUser } from './user.interface';
 import { User } from './user.model';
+import bcrypt from 'bcrypt';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 
@@ -20,9 +22,26 @@ const updateUser = async (
   id: string,
   payload: Partial<IUser>
 ): Promise<IUser | null> => {
-  const result = await User.findOneAndUpdate({ _id: id }, payload, {
+  const isExist = await User.findOne({ _id: id });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  const { name, ...userData } = payload;
+
+  const updateUserData: Partial<IUser> = { ...userData };
+
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach(key => {
+      const nameKey = `name.${key}` as keyof Partial<IUser>;
+      (updateUserData as any)[nameKey] = name[key as keyof typeof name];
+    });
+  }
+
+  const result = await User.findOneAndUpdate({ _id: id }, updateUserData, {
     new: true,
   });
+
   return result;
 };
 
@@ -54,10 +73,53 @@ const getMyProfile = async (token: string): Promise<IProfile> => {
   return result;
 };
 
+const updateMyProfile = async (payload: Partial<IUser>, token: string) => {
+  const isValidUser = JwtHelpers.verifiedToken(
+    token,
+    config.jwt.secret as Secret
+  );
+
+  if (!isValidUser) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
+  const isExist = await User.findOne({ _id: isValidUser?.userId });
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  const { name, password, ...updateData } = payload;
+  const updateProfileData: Partial<IUser> = { ...updateData };
+
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach(key => {
+      const nameKey = `name.${key}` as keyof Partial<IUser>;
+
+      (updateProfileData as any)[nameKey] = name[key as keyof typeof name];
+    });
+  }
+
+  if (password) {
+    const hashedPassword = await bcrypt.hash(
+      password,
+      Number(config.bcrypt_salt_rounds)
+    );
+    updateProfileData.password = hashedPassword;
+  }
+
+  const result = await User.findOneAndUpdate(
+    { _id: isValidUser?.userId },
+    updateProfileData,
+    { new: true }
+  );
+
+  return result;
+};
+
 export const UserService = {
   getAllUsers,
   getSingleUser,
   updateUser,
   deleteUser,
   getMyProfile,
+  updateMyProfile,
 };

@@ -34,7 +34,25 @@ const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSingleOrder = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const token = req.headers.authorization;
+
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
+
+  const result = await OrderService.getSingleOrder(id, token);
+  sendResponse<IOrder>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Order information retrieved successfully',
+    data: result,
+  });
+});
+
 export const OrderController = {
   createOrder,
   getAllOrders,
+  getSingleOrder,
 };

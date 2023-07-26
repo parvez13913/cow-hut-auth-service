@@ -12,6 +12,11 @@ router.get(
   auth(ENUM_USER_ROLE.BUYER, ENUM_USER_ROLE.SELLER),
   UserController.getMyProfile
 );
+router.patch(
+  '/my-profile',
+  auth(ENUM_USER_ROLE.BUYER, ENUM_USER_ROLE.SELLER),
+  UserController.updateMyProfile
+);
 router.get('/:id', auth(ENUM_USER_ROLE.ADMIN), UserController.getSingleUser);
 router.delete('/:id', auth(ENUM_USER_ROLE.ADMIN), UserController.deleteUser);
 

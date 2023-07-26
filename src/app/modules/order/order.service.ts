@@ -111,7 +111,56 @@ const getAllOrders = async (token: string): Promise<IOrder[]> => {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden..');
   }
 };
+
+const getSingleOrder = async (
+  id: string,
+  token: string
+): Promise<IOrder | null> => {
+  const verifiedOrder = JwtHelpers.verifiedToken(
+    token,
+    config.jwt.secret as Secret
+  );
+  const { userId, role } = verifiedOrder;
+  if (role === 'admin') {
+    return await Order.findById(id)
+      .populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+      .populate('buyer');
+  } else if (role === 'buyer') {
+    return await Order.findOne({ buyer: userId })
+      .populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+      .populate('buyer');
+  } else if (role === 'seller') {
+    return await Order.find({ 'cow.seller': userId })
+      .populate({
+        path: 'cow',
+        populate: [
+          {
+            path: 'seller',
+          },
+        ],
+      })
+      .populate('buyer');
+  } else {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden..');
+  }
+};
+
 export const OrderService = {
   createOrder,
   getAllOrders,
+  getSingleOrder,
 };

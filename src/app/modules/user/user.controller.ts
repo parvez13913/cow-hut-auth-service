@@ -69,10 +69,27 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const updateProfileData = req.body;
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
+  }
+  const result = await UserService.updateMyProfile(updateProfileData, token);
+
+  sendResponse<IProfile>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User information retrieved successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   getAllUsers,
   getSingleUser,
   updateUser,
   deleteUser,
   getMyProfile,
+  updateMyProfile,
 };
