@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import catchAsync from '../shared/catchAsync';
 import sendResponse from '../shared/sendResponse';
 import httpStatus from 'http-status';
-import { IUser } from './user.interface';
+import { IProfile, IUser } from './user.interface';
 import { UserService } from './user.service';
+import ApiError from '../../../errors/ApiError';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const result = await UserService.getAllUsers();
@@ -53,9 +54,25 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
+  }
+  const result = await UserService.getMyProfile(token);
+
+  sendResponse<IProfile>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User information retrieved successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   getAllUsers,
   getSingleUser,
   updateUser,
   deleteUser,
+  getMyProfile,
 };

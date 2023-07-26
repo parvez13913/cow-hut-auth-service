@@ -17,6 +17,12 @@ export type IUser = {
   income: number;
 };
 
+export type IProfile = {
+  name: UserName;
+  phoneNumber: string;
+  address: string;
+};
+
 export type UserModel = {
   isUserExist(
     phoneNumber: string
