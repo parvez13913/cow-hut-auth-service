@@ -7,6 +7,11 @@ import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
 import { IUser } from '../user/user.interface';
 
+const createUser = async (payload: IUser): Promise<IUser | null> => {
+  const result = await User.create(payload);
+  return result;
+};
+
 const loginUser = async (payload: ILoginUser) => {
   const { phoneNumber, password } = payload;
 
@@ -79,4 +84,5 @@ const refreshToken = async (token: string) => {
 export const AuthService = {
   loginUser,
   refreshToken,
+  createUser,
 };

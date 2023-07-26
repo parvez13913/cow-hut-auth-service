@@ -72,7 +72,7 @@ const getAllOrders = async (token: string): Promise<IOrder[]> => {
   );
   const { role, userId } = isValidUser;
   if (role === 'admin') {
-    const allOrders = await Order.find()
+    const allOrders = await Order.find({})
       .populate({
         path: 'cow',
         populate: [

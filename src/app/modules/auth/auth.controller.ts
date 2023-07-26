@@ -5,6 +5,19 @@ import httpStatus from 'http-status';
 import { AuthService } from './auth.service';
 import { ILoginUserResponse } from './auth.interface';
 import config from '../../../config';
+import { IUser } from '../user/user.interface';
+
+const createUser = catchAsync(async (req: Request, res: Response) => {
+  const { ...userData } = req.body;
+  const result = await AuthService.createUser(userData);
+
+  sendResponse<IUser>(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Users created successfully',
+    data: result,
+  });
+});
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
@@ -48,4 +61,5 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 export const AuthController = {
   loginUser,
   refreshToken,
+  createUser,
 };
