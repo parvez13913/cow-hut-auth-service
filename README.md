@@ -12,3 +12,8 @@
 * Route : https://cow-hut-one.vercel.app/api/v1/admins/create-admin (POST)
 * Route : https://cow-hut-one.vercel.app/api/v1/admins/login (POST)
 
+## User
+* Route : https://cow-hut-one.vercel.app/api/v1/users/ (GET)
+* Route : https://cow-hut-one.vercel.app/api/v1/users/64c24323294569e61878a9b7 (GET)
+* Route : https://cow-hut-one.vercel.app/api/v1/users/64c24323294569e61878a9b7 (PATCH)
+* Route : https://cow-hut-one.vercel.app/api/v1/users/64c24323294569e61878a9b7 (DELETE)
