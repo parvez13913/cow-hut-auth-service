@@ -17,3 +17,9 @@
 * Route : https://cow-hut-one.vercel.app/api/v1/users/64c24323294569e61878a9b7 (GET)
 * Route : https://cow-hut-one.vercel.app/api/v1/users/64c24323294569e61878a9b7 (PATCH)
 * Route : https://cow-hut-one.vercel.app/api/v1/users/64c24323294569e61878a9b7 (DELETE)
+
+## Cows
+* Route : https://cow-hut-one.vercel.app/api/v1/cows/ (GET)
+* Route : https://cow-hut-one.vercel.app/api/v1/cows/64c233737d5e64aa0efe2d19 (GET)
+* Route : https://cow-hut-one.vercel.app/api/v1/cows/64c233737d5e64aa0efe2d19 (PATCH)
+* Route : https://cow-hut-one.vercel.app/api/v1/cows/64c233737d5e64aa0efe2d19 (DELETE)
