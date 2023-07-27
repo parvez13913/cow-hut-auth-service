@@ -120,9 +120,18 @@ const getSingleOrder = async (
     token,
     config.jwt.secret as Secret
   );
+  if (!verifiedOrder) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
+  const isExist = await Order.findById(id);
+  if (!isExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Order does not exist !');
+  }
+
   const { userId, role } = verifiedOrder;
+  let result = null;
   if (role === 'admin') {
-    return await Order.findById(id)
+    result = await Order.findById(id)
       .populate({
         path: 'cow',
         populate: [
@@ -133,7 +142,7 @@ const getSingleOrder = async (
       })
       .populate('buyer');
   } else if (role === 'buyer') {
-    return await Order.findOne({ buyer: userId })
+    result = await Order.findOne({ buyer: userId })
       .populate({
         path: 'cow',
         populate: [
@@ -144,19 +153,29 @@ const getSingleOrder = async (
       })
       .populate('buyer');
   } else if (role === 'seller') {
-    return await Order.find({ 'cow.seller': userId })
-      .populate({
-        path: 'cow',
-        populate: [
-          {
-            path: 'seller',
-          },
-        ],
-      })
-      .populate('buyer');
+    const order = await Order.findOne({ _id: id });
+    const cow = await Cow.findOne({ _id: order?.cow });
+    const seller = await User.findOne({ _id: cow?.seller });
+
+    if (userId === seller?._id.toString()) {
+      result = await Order.findOne({ _id: id })
+        .populate({
+          path: 'cow',
+          populate: [
+            {
+              path: 'seller',
+            },
+          ],
+        })
+        .populate('buyer');
+    } else {
+      result = null;
+    }
   } else {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden..');
   }
+
+  return result;
 };
 
 export const OrderService = {

@@ -27,7 +27,7 @@ const updateUser = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
 
-  const { name, ...userData } = payload;
+  const { name, password, ...userData } = payload;
 
   const updateUserData: Partial<IUser> = { ...userData };
 
@@ -36,6 +36,14 @@ const updateUser = async (
       const nameKey = `name.${key}` as keyof Partial<IUser>;
       (updateUserData as any)[nameKey] = name[key as keyof typeof name];
     });
+  }
+
+  if (password) {
+    const hashedPassword = await bcrypt.hash(
+      password,
+      Number(config.bcrypt_salt_rounds)
+    );
+    updateUserData.password = hashedPassword;
   }
 
   const result = await User.findOneAndUpdate({ _id: id }, updateUserData, {
