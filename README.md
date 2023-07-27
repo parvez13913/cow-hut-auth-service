@@ -8,3 +8,7 @@
 * Route : https://cow-hut-one.vercel.app/api/v1/auth/login (POST)
 * Route : https://cow-hut-one.vercel.app/api/v1/auth/refresh-token (POST)
 
+## Auth (Admin)
+* Route : https://cow-hut-one.vercel.app/api/v1/admins/create-admin (POST)
+* Route : https://cow-hut-one.vercel.app/api/v1/admins/login (POST)
+
