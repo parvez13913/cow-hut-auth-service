@@ -28,3 +28,7 @@
 * Route : https://cow-hut-one.vercel.app/api/v1/orders (POST)
 * Route : https://cow-hut-one.vercel.app/api/v1/orders/ (GET)
 * Route : https://cow-hut-one.vercel.app/api/v1/orders/64c235dd7d5e64aa0efe2d41 (GET)
+
+## My Profile
+* Route : https://cow-hut-one.vercel.app/api/v1/users/my-profile (GET)
+* Route : https://cow-hut-one.vercel.app/api/v1/users/my-profile (PATCH)
