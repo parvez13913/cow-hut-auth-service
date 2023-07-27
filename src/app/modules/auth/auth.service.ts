@@ -9,6 +9,7 @@ import { IUser } from '../user/user.interface';
 
 const createUser = async (payload: IUser): Promise<IUser | null> => {
   const result = await User.create(payload);
+  result.toObject();
   return result;
 };
 
