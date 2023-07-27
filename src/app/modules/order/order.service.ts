@@ -70,9 +70,13 @@ const getAllOrders = async (token: string): Promise<IOrder[]> => {
     token,
     config.jwt.secret as Secret
   );
+  if (!isValidUser) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+  }
   const { role, userId } = isValidUser;
+  let result: IOrder[] = [];
   if (role === 'admin') {
-    const allOrders = await Order.find({})
+    result = await Order.find({})
       .populate({
         path: 'cow',
         populate: [
@@ -82,9 +86,8 @@ const getAllOrders = async (token: string): Promise<IOrder[]> => {
         ],
       })
       .populate('buyer');
-    return allOrders;
   } else if (role === 'buyer') {
-    const buyerOrders = await Order.find({ buyer: userId })
+    result = await Order.find({ buyer: userId })
       .populate({
         path: 'cow',
         populate: [
@@ -94,33 +97,40 @@ const getAllOrders = async (token: string): Promise<IOrder[]> => {
         ],
       })
       .populate('buyer');
-    return buyerOrders;
   } else if (role === 'seller') {
-    const sellerOrders = await Order.find({ seller: userId })
-      .populate({
-        path: 'cow',
-        populate: [
-          {
-            path: 'seller',
-          },
-        ],
-      })
-      .populate('buyer');
-    return sellerOrders;
+    const seller = await User.findOne({ _id: userId });
+    const cows = await Cow.find({ seller: seller?._id });
+    const mapingCow = await cows.map(cow => cow?._id.toString());
+
+    if (userId === seller?._id.toString()) {
+      result = await Order.find({ cow: { $in: mapingCow } })
+        .populate({
+          path: 'cow',
+          populate: [
+            {
+              path: 'seller',
+            },
+          ],
+        })
+        .populate('buyer');
+    } else {
+      result = [];
+    }
   } else {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden..');
   }
+  return result;
 };
 
 const getSingleOrder = async (
   id: string,
   token: string
 ): Promise<IOrder | null> => {
-  const verifiedOrder = JwtHelpers.verifiedToken(
+  const isValidUser = JwtHelpers.verifiedToken(
     token,
     config.jwt.secret as Secret
   );
-  if (!verifiedOrder) {
+  if (!isValidUser) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'You are not authorized');
   }
   const isExist = await Order.findById(id);
@@ -128,7 +138,7 @@ const getSingleOrder = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Order does not exist !');
   }
 
-  const { userId, role } = verifiedOrder;
+  const { userId, role } = isValidUser;
   let result = null;
   if (role === 'admin') {
     result = await Order.findById(id)
